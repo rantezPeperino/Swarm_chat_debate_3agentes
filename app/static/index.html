@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debate </title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #debate-log {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 400px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+        }
+        input, button {
+            font-size: 16px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Debate </h1>
+    <div id="debate-log"></div>
+    <input type="text" id="topic-input" placeholder="Ingrese el tema del debate">
+    <button onclick="startDebate()">Iniciar Debate</button>
+
+    <script>
+        const debateLog = document.getElementById('debate-log');
+        const topicInput = document.getElementById('topic-input');
+        let socket;
+
+        function startDebate() {
+            const topic = topicInput.value;
+            if (topic) {
+                if (socket) {
+                    socket.close();
+                }
+                debateLog.innerHTML = '';
+                socket = new WebSocket('ws://localhost:8000/ws');
+                socket.onopen = function(event) {
+                    socket.send(topic);
+                };
+                socket.onmessage = function(event) {
+                    const message = event.data;
+                    debateLog.innerHTML += `<p>${message}</p>`;
+                    debateLog.scrollTop = debateLog.scrollHeight;
+                };
+            } else {
+                alert('Por favor, ingrese un tema para el debate.');
+            }
+        }
+    </script>
+</body>
+</html>
